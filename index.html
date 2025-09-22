@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Оплата USDT</title>
+  <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"></script>
+</head>
+<body>
+
+<button id="pay">Отправить 1 USDT</button>
+
+<script>
+const USDT_CONTRACT = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"; // офиц. контракт USDT в TRON
+const RECEIVER = "TEGcg6RSNnGfob4zaeD3hdWi8XUsvMAHvQ"; // твой T-адрес
+const AMOUNT = 1 * 1e6; // 1 USDT = 1,000,000 (6 знаков)
+
+document.getElementById("pay").addEventListener("click", async () => {
+  if (!(window.tronWeb && window.tronWeb.ready)) {
+    return alert("Установи TronLink!");
+  }
+
+  const contract = await tronWeb.contract().at(USDT_CONTRACT);
+
+  try {
+    const tx = await contract.transfer(RECEIVER, AMOUNT).send();
+    alert("Успешно! TX ID: " + tx);
+  } catch (err) {
+    alert("Ошибка: " + err);
+  }
+});
+</script>
+</body>
+</html>

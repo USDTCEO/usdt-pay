@@ -1,43 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Оплата USDT</title>
   <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #0d47a1, #1976d2, #42a5f5);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      max-width: 500px;
+      width: 90%;
+    }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 15px;
+    }
+    p {
+      font-size: 1rem;
+      margin-bottom: 30px;
+      color: #e3f2fd;
+    }
+    button {
+      background: #1565c0;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0d47a1;
+      transform: scale(1.05);
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Оплата USDT</h1>
+    <p>Нажмите кнопку ниже, чтобы отправить 1 USDT на наш адрес через TronLink</p>
+    <button id="pay">Оплатить 1 USDT</button>
+  </div>
 
-<button id="pay">Отправить 1 USDT</button>
+  <script>
+    const USDT_CONTRACT = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"; // Офиц. контракт USDT TRC20
+    const RECEIVER = "TEGcg6RSNnGfob4zaeD3hdWi8XUsvMAHvQ";   // Твой T-адрес
+    const AMOUNT = 1 * 1e6; // 1 USDT = 1,000,000 (6 знаков)
 
-<script>
-const USDT_CONTRACT = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"; // Офиц. контракт USDT TRC20
-const RECEIVER = "TEGcg6RSNnGfob4zaeD3hdWi8XUsvMAHvQ"; // твой T-адрес
-const AMOUNT = 1 * 1e6; // 1 USDT = 1,000,000 (6 знаков)
+    async function waitForTronLink() {
+      return new Promise((resolve) => {
+        const check = setInterval(() => {
+          if (window.tronWeb && window.tronWeb.ready) {
+            clearInterval(check);
+            resolve(window.tronWeb);
+          }
+        }, 500);
+      });
+    }
 
-// Функция ожидания TronLink
-async function waitForTronLink() {
-  return new Promise((resolve) => {
-    const check = setInterval(() => {
-      if (window.tronWeb && window.tronWeb.ready) {
-        clearInterval(check);
-        resolve(window.tronWeb);
+    document.getElementById("pay").addEventListener("click", async () => {
+      const tronWeb = await waitForTronLink();
+
+      const contract = await tronWeb.contract().at(USDT_CONTRACT);
+
+      try {
+        const tx = await contract.transfer(RECEIVER, AMOUNT).send();
+        alert("✅ Успешно! TX ID: " + tx);
+      } catch (err) {
+        alert("❌ Ошибка: " + err);
       }
-    }, 500);
-  });
-}
-
-document.getElementById("pay").addEventListener("click", async () => {
-  const tronWeb = await waitForTronLink();
-
-  const contract = await tronWeb.contract().at(USDT_CONTRACT);
-
-  try {
-    const tx = await contract.transfer(RECEIVER, AMOUNT).send();
-    alert("Успешно! TX ID: " + tx);
-  } catch (err) {
-    alert("Ошибка: " + err);
-  }
-});
-</script>
+    });
+  </script>
 </body>
 </html>
